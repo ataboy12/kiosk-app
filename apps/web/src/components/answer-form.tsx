@@ -1,12 +1,11 @@
 'use client';
 
-import { SCALAR_COLUMN, type QuestionNode } from '@kiosk/questionnaire';
+import { labelOf, SCALAR_COLUMN, type QuestionNode } from '@kiosk/questionnaire';
 import { Paper, Stack, Title, type TitleOrder } from '@mantine/core';
 import { cellState } from '~/form-state';
 import { useFormState } from './answer-form-context';
 import { AnswerInput } from './answer-input';
 import { AnswerTable } from './answer-table';
-import { labelOf } from './question-label';
 import { QuestionNotes } from './question-notes';
 
 /** Heading levels by depth: the page title is the h1, top-level questions are h2. */

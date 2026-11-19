@@ -1,13 +1,8 @@
-import {
-  DERIVED_ANSWERS,
-  SCALAR_COLUMN,
-  type AnswerValue,
-  type Column,
-} from '@kiosk/questionnaire';
+import { DERIVED_ANSWERS, type AnswerValue } from '@kiosk/questionnaire';
 
 /*
  * Answer rules shared by the form (in the browser) and the save action (on the server), so both
- * agree on a table's columns and on the derived answers.
+ * agree on the derived answers and on how values are read.
  */
 
 /** Longest text answer accepted. */
@@ -71,12 +66,4 @@ export function readNumber(value: AnswerValue): number | null | undefined {
   if (value === null || value.trim() === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
-}
-
-/** A table's columns, as found in the DSN. A table the mapping didn't see has a single column. */
-export function tableColumns(
-  columns: Readonly<Record<string, Column[]>>,
-  tableId: string,
-): Column[] {
-  return columns[tableId] ?? [SCALAR_COLUMN];
 }

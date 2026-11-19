@@ -2,6 +2,7 @@ import type { AnswerSource, NewAnswer } from '@kiosk/db';
 import {
   flattenQuestions,
   SCALAR_COLUMN,
+  tableColumns,
   type AnswerValue,
   type Column,
   type QuestionNode,
@@ -12,7 +13,6 @@ import {
   DERIVED_QUESTION_IDS,
   MAX_TEXT_LENGTH,
   readNumber,
-  tableColumns,
   withCell,
   withDerived,
   type AnswerGrid,

@@ -1,6 +1,6 @@
 'use client';
 
-import type { QuestionNode } from '@kiosk/questionnaire';
+import { labelOf, type QuestionNode } from '@kiosk/questionnaire';
 import {
   Skeleton,
   Stack,
@@ -14,7 +14,6 @@ import { cellState } from '~/form-state';
 import { useAnswerForm, useFormState } from './answer-form-context';
 import { AnswerInput, WaitingInput } from './answer-input';
 import { QuestionNotes } from './question-notes';
-import { labelOf } from './question-label';
 
 const ROW_HEADER_WIDTH = 240;
 const COLUMN_WIDTH = 140;

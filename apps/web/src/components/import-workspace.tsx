@@ -1,9 +1,8 @@
 'use client';
 
-import type { QuestionNode } from '@kiosk/questionnaire';
+import { tableColumns, type QuestionNode } from '@kiosk/questionnaire';
 import { Stack } from '@mantine/core';
 import { Suspense, useCallback, useMemo, useReducer, useState } from 'react';
-import { tableColumns } from '~/answer-grid';
 import { EMPTY_FORM, formReducer } from '~/form-state';
 import type { Prefill } from '~/prefill';
 import { AnswerForm } from './answer-form';

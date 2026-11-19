@@ -47,6 +47,10 @@ pnpm build        # next build; needs no database
      `curl -s -H "Next-Action: $ID" -H "Accept: text/x-component" -H "Origin: http://localhost:3100" -H "Content-Type: text/plain;charset=UTF-8" --data '["<id>",[{"questionId":"S1-6_11","columnKey":"","value":4}]]' http://localhost:3100/imports/<id>`
      must return `{"ok":true}`, and the `answer` table must then hold S1-6_11 = 4 and S1-6_12
      (turnover) = 4, both `MANUAL`. Sending `S1-6_12` itself must return `"ok":false`.
+   - Export: `curl -s -D - -o <scratchpad>/export.docx http://localhost:3100/imports/<id>/export`
+     must return 200 with `content-disposition: attachment; filename="dsn-S1-6.docx"; …`, and
+     `file -b` must report `Microsoft Word 2007+`. The same URL with an unknown uuid must return a
+     303 to `/imports/<uuid>?export-error=unavailable`.
    - The dev log must have no `⨯` lines.
 5. Stop the server you started (`lsof -ti tcp:3100 | xargs kill`). Leave Postgres running.
 

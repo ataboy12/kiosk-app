@@ -61,6 +61,11 @@ function assertValidRows(table: QuestionNode): void {
   }
 }
 
+/** The question's label, with its unit when it has one: "Percentage of employee turnover (%)". */
+export function labelOf(question: QuestionDefinition): string {
+  return question.unit ? `${question.labelEn} (${question.unit})` : question.labelEn;
+}
+
 /** Every node of the tree, depth first, in display order. */
 export function flattenQuestions(roots: readonly QuestionNode[]): QuestionNode[] {
   return roots.flatMap((node) => [node, ...flattenQuestions(node.children)]);

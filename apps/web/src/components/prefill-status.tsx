@@ -4,14 +4,8 @@ import { Alert, Button, Group, List, Loader, Stack, Text, type AlertProps } from
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useTransition } from 'react';
+import { formatPeriod } from '~/format-period';
 import type { Prefill, PrefillSummary } from '~/prefill';
-
-const dateFormat = new Intl.DateTimeFormat('en-GB', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
 
 /**
  * A status banner. Mantine's Alert defaults to `role="alert"`, which would make screen readers
@@ -62,9 +56,7 @@ export function PrefillStatus({ prefill, onSettled }: PrefillStatusProps) {
 
 function ReadyBanner({ summary, failureCount }: { summary: PrefillSummary; failureCount: number }) {
   const { employeeCount, prefilledCount, period, warnings, warningCount } = summary;
-  const periodText = period
-    ? ` for ${dateFormat.format(new Date(period.start))} – ${dateFormat.format(new Date(period.end))}`
-    : '';
+  const periodText = period ? ` for ${formatPeriod(period)}` : '';
   const hidden = warningCount - warnings.length;
 
   return (

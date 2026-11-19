@@ -20,9 +20,14 @@ const PROCESSING_TIMEOUT_MS = 30_000;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** An id from a URL can be looked up: anything else would make Postgres reject the query. */
+export function isImportId(id: string): boolean {
+  return UUID.test(id);
+}
+
 /** The import's file name, or `null` when there is no import with this id. */
 export async function getImport(id: string) {
-  if (!UUID.test(id)) return null;
+  if (!isImportId(id)) return null;
   const [row] = await getDb()
     .select({ fileName: dsnImports.fileName })
     .from(dsnImports)

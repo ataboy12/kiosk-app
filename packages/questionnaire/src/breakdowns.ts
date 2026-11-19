@@ -68,6 +68,14 @@ export type Breakdown = readonly Dimension[];
 /** The single column of a question outside tables, or of a table without a breakdown. */
 export const SCALAR_COLUMN: Column = { key: '', label: 'Total' };
 
+/** A table's columns, as found in the DSN. A table the mapping didn't see has a single column. */
+export function tableColumns(
+  columns: Readonly<Record<string, Column[]>>,
+  tableId: string,
+): Column[] {
+  return columns[tableId] ?? [SCALAR_COLUMN];
+}
+
 /** The breakdown of each table, by table question id. The table's rows are its child questions. */
 export const TABLE_BREAKDOWNS: Readonly<Record<string, Breakdown>> = {
   'S1-6_01': [],

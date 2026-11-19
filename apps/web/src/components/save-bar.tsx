@@ -19,7 +19,10 @@ interface SaveBarProps {
   ready: boolean;
 }
 
-/** Explicit save, kept in view at the bottom of the form. The user stays on the page. */
+/**
+ * Explicit save and Word export, kept in view at the bottom of the form. The user stays on the
+ * page. The export holds the saved answers, so it waits until every change is saved.
+ */
 export function SaveBar({ importId, ready }: SaveBarProps) {
   const { dispatch } = useAnswerForm();
   const state = useFormState();
@@ -56,9 +59,22 @@ export function SaveBar({ importId, ready }: SaveBarProps) {
           {statusText({ saving, error, ready, changeCount: changes.length })}
         </Text>
         <VisuallyHidden aria-live="polite">{saving ? 'Saving…' : announcement}</VisuallyHidden>
-        <Button onClick={save} loading={saving} disabled={!ready || !dirty}>
-          Save
-        </Button>
+        <Group gap="xs">
+          {ready && !dirty && !saving ? (
+            // A plain link, without `download`: the route answers with the file, or redirects back
+            // to this page with a message when it can't.
+            <Button component="a" href={`/imports/${importId}/export`} variant="default">
+              Export to Word
+            </Button>
+          ) : (
+            <Button variant="default" disabled>
+              Export to Word
+            </Button>
+          )}
+          <Button onClick={save} loading={saving} disabled={!ready || !dirty}>
+            Save
+          </Button>
+        </Group>
       </Group>
     </Paper>
   );
@@ -76,5 +92,6 @@ function statusText({ saving, error, ready, changeCount }: SaveStatus): string {
   if (error) return error;
   if (!ready) return 'You can save once your DSN has been read. What you type is kept.';
   if (changeCount === 0) return 'All changes saved.';
-  return changeCount === 1 ? '1 unsaved change.' : `${changeCount} unsaved changes.`;
+  const count = changeCount === 1 ? '1 unsaved change' : `${changeCount} unsaved changes`;
+  return `${count}. Save them to export.`;
 }
