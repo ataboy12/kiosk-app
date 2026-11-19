@@ -36,6 +36,34 @@ export interface ImportWarning {
   message: string;
 }
 
+/*
+ * The JSON types below mirror the questionnaire's (`AnswerValue`, `Provenance`, `Column`,
+ * `MappingFailure`): `db` depends on no other package. The web app assigns one to the other in
+ * `server/imports.ts`, so the type checker reports any drift.
+ */
+
+/** A stored answer value: a number, a text or an enum option. */
+export type StoredValue = number | string | null;
+
+/** How a computed value was obtained: rubriques used, method, notes. */
+export interface StoredProvenance {
+  method: string;
+  rubriques: string[];
+  notes: string[];
+}
+
+/** A table column found in the DSN (a country, a contract × gender pair, …). */
+export interface ImportColumn {
+  key: string;
+  label: string;
+}
+
+/** A question the mapping should answer but couldn't, with a message for the user. */
+export interface ImportFailure {
+  questionId: string;
+  message: string;
+}
+
 const timestamps = {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true })
@@ -55,7 +83,13 @@ export const dsnImports = pgTable('dsn_import', {
   siren: text(),
   periodStart: date({ mode: 'string' }),
   periodEnd: date({ mode: 'string' }),
+  /** Distinct employees found in the DSN. */
+  employeeCount: integer(),
   warnings: jsonb().$type<ImportWarning[]>().notNull().default([]),
+  /** Columns of each table question, keyed by table id. */
+  columns: jsonb().$type<Record<string, ImportColumn[]>>().notNull().default({}),
+  /** Mapped questions that couldn't be computed. */
+  failures: jsonb().$type<ImportFailure[]>().notNull().default([]),
   /** Business-language message when status is FAILED. */
   error: text(),
   ...timestamps,
@@ -91,12 +125,12 @@ export const answers = pgTable(
       .references(() => questions.id),
     columnKey: text().notNull().default(''),
     /** Value derived from the DSN, kept so an edited value can be reset. */
-    computedValue: jsonb(),
+    computedValue: jsonb().$type<StoredValue>(),
     /** Current value shown to the user (computed or edited). */
-    value: jsonb(),
+    value: jsonb().$type<StoredValue>(),
     source: answerSource().notNull(),
-    /** How the computed value was obtained: rubriques used, method, notes. */
-    provenance: jsonb(),
+    /** How the computed value was obtained; `null` for an answer the DSN didn't pre-fill. */
+    provenance: jsonb().$type<StoredProvenance>(),
     ...timestamps,
   },
   (t) => [unique().on(t.importId, t.questionId, t.columnKey)],

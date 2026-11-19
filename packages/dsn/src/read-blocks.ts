@@ -32,7 +32,7 @@ const LINE_PATTERN = /^(S\d{2}\.G\d{2}\.\d{2})(?:\.(\d{3}))?,'(.*)'$/;
  */
 export function readBlocks(text: string, warnings: DsnWarning[]): RawBlock[] {
   const tree = new BlockTreeBuilder(warnings);
-  const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+  const lines = splitLines(text);
 
   lines.forEach((rawLine, index) => {
     const lineNumber = index + 1;
@@ -53,6 +53,19 @@ export function readBlocks(text: string, warnings: DsnWarning[]): RawBlock[] {
   });
 
   return tree.finish();
+}
+
+/**
+ * A cheap check before storing an upload: the first non-empty line is a DSN line. `parseDsn`
+ * remains the full check.
+ */
+export function looksLikeDsn(text: string): boolean {
+  const first = splitLines(text).find((line) => line.trim() !== '');
+  return first !== undefined && parseLine(first.trim()) !== null;
+}
+
+function splitLines(text: string): string[] {
+  return text.replace(/^\uFEFF/, '').split(/\r?\n/);
 }
 
 /** Splits a line into its parts, or returns `null` when it isn't a DSN line. */

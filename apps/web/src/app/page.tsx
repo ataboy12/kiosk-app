@@ -1,19 +1,18 @@
 import { Container, Stack, Text, Title } from '@mantine/core';
-import { connection } from 'next/server';
-import { countQuestions } from '~/server/questions';
+import { UploadForm } from '~/components/upload-form';
 
-// Placeholder until the upload flow (build step 4): proves the app reaches the seeded database.
-export default async function HomePage() {
-  await connection(); // Render per request: the page reads the database, never at build time.
-  const questionCount = await countQuestions();
-
+export default function HomePage() {
   return (
     <Container size="sm" py="xl">
-      <Stack gap="xs">
-        <Title order={1}>DSN workforce reporting</Title>
-        <Text c="dimmed">
-          Upload a DSN to pre-fill the S1‑6 workforce questions. {questionCount} questions loaded.
-        </Text>
+      <Stack gap="lg">
+        <Stack gap="xs">
+          <Title order={1}>DSN workforce reporting</Title>
+          <Text c="dimmed">
+            Upload a DSN to pre-fill the S1‑6 workforce questions of your CSRD report. You can
+            review and edit every answer before exporting it.
+          </Text>
+        </Stack>
+        <UploadForm />
       </Stack>
     </Container>
   );

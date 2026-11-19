@@ -24,19 +24,28 @@ pnpm build        # next build; needs no database
 ## 2. Run the app
 
 1. `.env` must exist at the root; if not, copy `.env.example`.
-2. Start the database and apply migrations: `pnpm db:up && pnpm db:migrate`. If the
-   `question` table is empty (the home page says "0 questions loaded"), run `pnpm db:seed`.
+2. Start the database and apply migrations: `pnpm db:up && pnpm db:migrate && pnpm db:seed`
+   (the seed is idempotent).
 3. Start your own dev server on port 3100, so it never clashes with the user's on 3000 (and port
    3000 can be held by other tools, e.g. a VS Code helper): `pnpm dev --port 3100` with
    `run_in_background`, output redirected to a log file in the scratchpad.
-4. Poll `curl -s -o /dev/null -w '%{http_code}' http://localhost:3100` until it returns 200 (up
-   to 60 s). Then check the page shows a non-zero question count. React splits the number with
-   `<!-- -->` comments, so strip them first:
-   `curl -s http://localhost:3100 | sed 's/<!-- -->//g' | grep -oE '[0-9]+ questions loaded'`
-   (expected: `22 questions loaded`). Check the dev log has no errors.
+4. Check the routes:
+   - Poll `curl -s -o /dev/null -w '%{http_code}' http://localhost:3100` until it returns 200 (up
+     to 60 s), and check the page contains `Upload and pre-fill`.
+   - Upload `dsn.txt` through the server action. Its id is the key whose `exportedName` is
+     `uploadDsn` in `apps/web/.next/dev/server/app/page/server-reference-manifest.json`. React
+     reads the root field `0` last, so the file field must come first:
+     `curl -s -D - -o /dev/null -H "Next-Action: $ID" -H "Accept: text/x-component" -H "Origin: http://localhost:3100" -F "_1_file=@dsn.txt;type=text/plain" -F '0=[{"error":null},"$K1"]' http://localhost:3100/`
+     must return an `x-action-redirect: /imports/<id>` header. The same call with
+     `questions.csv` must return a `does not look like a DSN` error.
+   - Fetch the redirect target. React splits text with `<!-- -->` comments, so strip them first:
+     `curl -s http://localhost:3100/imports/<id> | sed 's/<!-- -->//g'` must contain
+     `Reading your DSN…` (the streamed fallback), `100 employees found` and
+     `15 questions pre-filled`.
+   - The dev log must have no `⨯` lines.
 5. Stop the server you started (`lsof -ti tcp:3100 | xargs kill`). Leave Postgres running.
 
-As pages are added (upload flow, form), extend step 4 with a check of each new route.
+As pages are added (form, export), extend step 4 with a check of each new route.
 
 ## 3. Commit
 

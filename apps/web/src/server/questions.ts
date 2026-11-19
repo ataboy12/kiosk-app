@@ -1,8 +1,11 @@
 import 'server-only';
 
-import { count, getDb, questions } from '@kiosk/db';
+import { getDb, questions } from '@kiosk/db';
+import { buildQuestionTree } from '@kiosk/questionnaire';
+import { cache } from 'react';
 
-export async function countQuestions() {
-  const [row] = await getDb().select({ value: count() }).from(questions);
-  return row?.value ?? 0;
-}
+/** The seeded questions as a tree. Read once per request, shared by the page and the processing. */
+export const getQuestionTree = cache(async () => {
+  const rows = await getDb().select().from(questions);
+  return buildQuestionTree(rows);
+});

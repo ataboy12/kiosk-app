@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Lead Developer case study for Kiosk (ESG/CSRD reporting). Build steps 1 (setup), 2 (`dsn` parser) and 3 (`questionnaire`: question tree + mapping engine) of `implementation-plan.md` §9 are done; `docx-export` is an empty skeleton. Inputs and plan:
+Lead Developer case study for Kiosk (ESG/CSRD reporting). Build steps 1 (setup), 2 (`dsn` parser), 3 (`questionnaire`: question tree + mapping engine) and 4 (upload flow: upload, import status, streamed answers) of `implementation-plan.md` §9 are done. The import page shows a read‑only question outline that step 5 replaces with the form; `docx-export` is an empty skeleton. Inputs and plan:
 
 - `project-scope.md`: the brief from Kiosk. The deliverable README must cover how to run the project, how AI was used, and what to improve next.
 - `implementation-plan.md`: the agreed plan. It is the source of truth for architecture and scope decisions. Read it before starting any work, and keep it lean and code‑free when updating it.
@@ -28,6 +28,7 @@ Notes:
 
 - Drizzle uses the `pg` driver and `casing: 'snake_case'` (camelCase in TypeScript, snake_case in SQL), set in both `client.ts` and `drizzle.config.ts`. `getDb()` creates the pool on first use, so importing `@kiosk/db` never needs a database (`next build` runs without one).
 - `@kiosk/db` re‑exports the Drizzle query helpers it needs (`eq`, `count`, …); import them from there, not from `drizzle-orm`. Add to that list when a new helper is needed.
+- Upload and processing: `server/upload-dsn.ts` (server action: quick check with `looksLikeDsn`, store, redirect) and `processImport` in `server/imports.ts` (the one processing entry point: idempotent, row‑locked, 30 s timeout, never rejects). `/imports/[id]` passes its promise unawaited to a client component that reads it with `use()` inside `Suspense`.
 - Pages that read the database call `await connection()` (from `next/server`) so Next doesn't prerender them at build time. Database access lives in `apps/web/src/server/` behind `import 'server-only'`.
 - ESLint enforces the layering: domain packages use `@kiosk/eslint-config/domain`, which forbids importing `@kiosk/db`, `@kiosk/web`, `drizzle-orm` or `pg`. The web app uses `@kiosk/eslint-config/next` (Next's Core Web Vitals preset on top of the base rules).
 - Workspace packages are compiled by Next through `transpilePackages` in `apps/web/next.config.ts`; add new packages there.

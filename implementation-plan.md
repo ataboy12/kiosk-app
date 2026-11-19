@@ -65,7 +65,7 @@ The domain packages (`dsn`, `questionnaire`, `docx-export`) never import `db` or
 
 **Data model:**
 
-- `DsnImport`: status (`PROCESSING` / `READY` / `FAILED`), company, period, warnings.
+- `DsnImport`: file, status (`PROCESSING` / `READY` / `FAILED`), company, period, employee count, warnings, and the mapping's table columns and failures, so a processed import is read back without recomputing.
 - `Question`: seeded from the CSV.
 - `Answer`: `computedValue`, `value`, `source` (`COMPUTED` / `MANUAL`) and provenance, all tracked per table cell.
 
@@ -80,12 +80,12 @@ The domain packages (`dsn`, `questionnaire`, `docx-export`) never import `db` or
 
 ## 7. User flow
 
-1. **Upload (required).** The user can't go further without a file. The server does a quick check, stores the file, creates the import as `PROCESSING`, and redirects immediately.
+1. **Upload (required).** The user can't go further without a file. The server does a quick check (size, encoding, first line is a DSN line), stores the file, creates the import as `PROCESSING`, and redirects immediately.
 2. **Form shown at once.** All questions render immediately.
    - Questions the DSN can answer (known in advance from the mapping) are **locked**, with a "waiting for pre‑filled answers" indicator.
    - All other questions are editable straight away.
    - Answers are **streamed** to the page. Processing is safe to repeat: if the import is already `READY`, the saved answers are read instead of recomputed.
-   - Processing sits behind one function, so it can later move to a background job without changing the UI.
+   - Processing sits behind one function, so it can later move to a background job without changing the UI. A row lock makes concurrent requests (refresh, two tabs) wait for the first run instead of computing twice.
 3. **Answers arrive.** The locked fields unlock with their values, and a summary replaces the waiting banner (employees found, questions pre‑filled, warnings). Anything typed in the meantime is kept.
 4. **Edit.** Pre‑filled values can be edited (marked "edited", with a "reset to computed" action). Turnover recalculates when its inputs change.
 5. **Save and export.** Save is explicit and keeps the user on the page. Export is disabled until pre‑filling has finished.
