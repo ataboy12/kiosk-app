@@ -9,14 +9,15 @@ Upload a DSN, parse it on the server, map its data to the S1‑6 workforce quest
 - **`dsn.txt` defines the v1 scope.** It has 1 company, 1 establishment and 100 employees, each with one contract and one pay period, no contract ends, and many invalid codes. Only sex and the payment dates are reliable.
 - **Extensibility:** larger and more complete DSNs (several establishments, several contracts per employee, contract ends and changes, big files) are not handled in v1. The code is structured so they can be added without a rewrite (see §3 and §10).
 - **`questions.csv` is irregular.** It uses `;` as separator, mixes casing in `content`, and separates enum options with `", "`. Table questions are 2‑D: the child questions are the rows, and the breakdown values (country, contract × gender, …) are the columns.
-- **Reporting period:** read from `S20.G00.05.005` when it is a valid date, otherwise derived from the payment dates (the case in the sample).
+- **Reporting period:** read from `S20.G00.05.005` when it falls within the payment dates, otherwise derived from the payment dates (the case in the sample, where it is 1946‑07‑20).
 
 ## 3. Parsing
 
 - A declarative parent/child table describes the block hierarchy, with a stack that tracks the latest instance of each block type. Supporting a new block type means adding an entry to this table, not new parsing logic.
 - A new block starts on a block header line, or when the block code changes or the rubrique number stops increasing.
-- Values are converted to proper types (dates, decimals).
-- **Tolerant to bad values:** unexpected values become warnings with line numbers, never crashes. The import fails only when the file isn't a DSN or contains no employees. The mapping sends unknown codes to "Other / Unknown".
+- Two stages: lines become a block tree, then a declarative field spec per block reads the needed rubriques into a typed, JSON‑safe model (ISO dates). Each entity keeps its line number for provenance. Repeated blocks are kept as lists, so nothing is overwritten. File decoding is left to the caller.
+- **v1 uses only what the provided files define.** The parser keeps every code as a raw value without validation and applies no rules from the official spec; interpreting codes (e.g. sex `01`/`02`) is the mapping's job. The company is a top‑level block, and the `S10` header blocks are skipped.
+- **Tolerant to bad values:** unreadable values (malformed lines, impossible dates, missing identifiers) become warnings with line numbers, never crashes; impossible dates become empty. Unsupported block types produce one warning per type. The import fails only when the file isn't a DSN or contains no employees. The mapping sends unknown codes to "Other / Unknown".
 - This fixes the limits of the La Société Nouvelle parser: errors never recorded, establishments overwritten, consecutive blocks merged, crashes on unexpected block order, values left as strings.
 
 ## 4. Mapping
@@ -51,7 +52,7 @@ Upload a DSN, parse it on the server, map its data to the S1‑6 workforce quest
 | Package                                                | Role                                                        | Depends on         |
 | ------------------------------------------------------ | ----------------------------------------------------------- | ------------------ |
 | `apps/web`                                             | Next.js pages, server actions and form UI                   | all packages below |
-| `packages/dsn`                                         | DSN parser and code lists                                   | nothing            |
+| `packages/dsn`                                         | DSN parser                                                  | nothing            |
 | `packages/questionnaire`                               | Question tree and mapping engine                            | `dsn`              |
 | `packages/docx-export`                                 | Builds the Word file                                        | `questionnaire`    |
 | `packages/db`                                          | Drizzle schema, migrations, seed (questions), shared client | nothing            |

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Lead Developer case study for Kiosk (ESG/CSRD reporting). Build step 1 (setup) of `implementation-plan.md` §9 is done; `dsn`, `questionnaire` and `docx-export` are empty skeletons. Inputs and plan:
+Lead Developer case study for Kiosk (ESG/CSRD reporting). Build steps 1 (setup) and 2 (`dsn` parser) of `implementation-plan.md` §9 are done; `questionnaire` and `docx-export` are empty skeletons. Inputs and plan:
 
 - `project-scope.md`: the brief from Kiosk. The deliverable README must cover how to run the project, how AI was used, and what to improve next.
 - `implementation-plan.md`: the agreed plan. It is the source of truth for architecture and scope decisions. Read it before starting any work, and keep it lean and code‑free when updating it.
@@ -52,7 +52,7 @@ Domain packages (`dsn`, `questionnaire`, `docx-export`) must never import `db` o
 ## Domain notes that aren't obvious from the files
 
 - **DSN line format:** `S21.G00.30.001,'value'`. The first 10 characters are the block code (`S21.G00.30`). The file also contains block header lines with an empty value (`S21.G00.30,''`); use them to detect where a block starts. Hierarchy: `S21.G00.06` company → `.11` establishment → `.30` employee → `.40` contract / `.50` payment → `.51` pay period; `.62` is contract end.
-- **`dsn.txt` is generated test data:** 1 company, 1 establishment, 100 employees, each with exactly one `.40`, `.50` and `.51` block, and no `.62` blocks. Many codes are invalid against the spec (contract type `40.007`, status `40.002`/`40.003`, declared month `S20.G00.05.005` = `19460720`). The parser must record these as warnings, never crash on them. Only sex (`30.005`: 52 × `01` male, 48 × `02` female) and the `.50`/`.51` dates (Nov–Dec 2025) are reliable, so the reporting period comes from those dates.
+- **`dsn.txt` is generated test data:** 1 company, 1 establishment, 100 employees, each with exactly one `.40`, `.50` and `.51` block, and no `.62` blocks. Many values are meaningless (contract type `40.007`, status `40.002`/`40.003`, declared month `S20.G00.05.005` = `19460720`). The parser keeps codes as raw values and never crashes on them. v1 only uses what `dsn.txt` and `questions.csv` define: the parser applies no rules from the official spec, and code lists (only sex for now) belong to `questionnaire`. Only sex (`30.005`: 52 × `01` male, 48 × `02` female) and the `.50`/`.51` dates (Nov–Dec 2025) are reliable, so the reporting period comes from those dates.
 - **`questions.csv`:**
   - `;`‑separated, with many empty trailing columns; the header uses `relatedQuestion ID`.
   - `content` mixes casing (`Table`/`Text`), so normalise it.

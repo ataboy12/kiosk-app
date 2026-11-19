@@ -1,2 +1,2 @@
-// DSN parser. Implemented in build step 2 (see implementation-plan.md §3).
-export {};
+export { parseDsn } from './parse-dsn';
+export type * from './types';
