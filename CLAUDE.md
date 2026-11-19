@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Lead Developer case study for Kiosk (ESG/CSRD reporting). Build steps 1 (setup), 2 (`dsn` parser), 3 (`questionnaire`: question tree + mapping engine), 4 (upload flow: upload, import status, streamed answers), 5 (form: recursive rendering, tables, locked and waiting states, editing, saving) and 6 (`docx-export`) of `implementation-plan.md` §9 are done; the README (step 7) remains. Inputs and plan:
+Lead Developer case study for Kiosk (ESG/CSRD reporting). Build steps 1 (setup), 2 (`dsn` parser), 3 (`questionnaire`: question tree + mapping engine), 4 (upload flow: upload, import status, streamed answers), 5 (form: recursive rendering, tables, locked and waiting states, editing, saving), 6 (`docx-export`) and 7 (README) of `implementation-plan.md` §9 are done. Inputs and plan:
 
 - `project-scope.md`: the brief from Kiosk. The deliverable README must cover how to run the project, how AI was used, and what to improve next.
 - `implementation-plan.md`: the agreed plan. It is the source of truth for architecture and scope decisions. Read it before starting any work, and keep it lean and code‑free when updating it.
