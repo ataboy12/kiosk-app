@@ -65,7 +65,7 @@ export const AnswerInput = memo(function AnswerInput({
       />
     ) : undefined,
     rightSectionPointerEvents,
-    styles: edited ? { input: { borderColor: 'var(--mantine-color-yellow-6)' } } : undefined,
+    styles: edited ? { input: { borderColor: 'var(--kiosk-edited)' } } : undefined,
   };
 
   switch (question.content) {
@@ -140,7 +140,7 @@ function ResetButton({ label, computed, onReset }: ResetButtonProps) {
     <Tooltip label={`Edited. Reset to the value computed from your DSN: ${preview(computed)}`}>
       <ActionIcon
         variant="subtle"
-        color="yellow"
+        color="amber"
         size="sm"
         aria-label={`${label}: edited. Reset to the computed value, ${preview(computed)}`}
         onClick={onReset}

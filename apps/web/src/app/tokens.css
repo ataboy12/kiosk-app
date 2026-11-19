@@ -1,0 +1,23 @@
+/* The working-paper palette, shared by the CSS modules. Mirrors the colours in `theme.ts`. */
+:root {
+  --kiosk-ink: #1c2b3a;
+  --kiosk-slate: #5e6e80;
+  --kiosk-desk: #f2f4f7;
+  --kiosk-sheet: #ffffff;
+  --kiosk-rule: #d9dee5;
+  --kiosk-rule-strong: #a9b3c0;
+  --kiosk-computed: #2e7d5b;
+  --kiosk-edited: #b26a00;
+  --kiosk-error: #b42318;
+}
+
+body {
+  background: var(--kiosk-desk);
+  color: var(--kiosk-ink);
+}
+
+/* Figures line up in columns and don't shift while typing. */
+input,
+table {
+  font-variant-numeric: tabular-nums;
+}

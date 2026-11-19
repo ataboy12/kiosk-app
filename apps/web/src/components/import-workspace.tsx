@@ -5,6 +5,7 @@ import { Stack } from '@mantine/core';
 import { Suspense, useCallback, useMemo, useReducer, useState } from 'react';
 import { EMPTY_FORM, formReducer } from '~/form-state';
 import type { Prefill } from '~/prefill';
+import { StatusLegend } from './annotated';
 import { AnswerForm } from './answer-form';
 import {
   AnswerFormContext,
@@ -65,6 +66,7 @@ export function ImportWorkspace({
       {settled?.status !== 'FAILED' && (
         <AnswerFormContext value={form}>
           <FormStateContext value={state}>
+            <StatusLegend />
             <AnswerForm questions={questions} />
             <SaveBar importId={importId} ready={settled?.status === 'READY'} />
           </FormStateContext>

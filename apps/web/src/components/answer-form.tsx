@@ -1,26 +1,28 @@
 'use client';
 
 import { labelOf, SCALAR_COLUMN, type QuestionNode } from '@kiosk/questionnaire';
-import { Paper, Stack, Title, type TitleOrder } from '@mantine/core';
-import { cellState } from '~/form-state';
-import { useFormState } from './answer-form-context';
+import { Stack, Title, type TitleOrder } from '@mantine/core';
+import { answerStatus, cellState } from '~/form-state';
+import { Annotated } from './annotated';
+import { useAnswerForm, useFormState } from './answer-form-context';
 import { AnswerInput } from './answer-input';
 import { AnswerTable } from './answer-table';
 import { QuestionNotes } from './question-notes';
+import classes from './working-paper.module.css';
 
 /** Heading levels by depth: the page title is the h1, top-level questions are h2. */
 const HEADING_ORDERS: readonly TitleOrder[] = [2, 3, 4, 5, 6];
 
-/** The questionnaire: one card per top-level question, nested questions rendered recursively. */
+/** The questionnaire: one section per top-level question, nested questions rendered recursively. */
 export function AnswerForm({ questions }: { questions: readonly QuestionNode[] }) {
   return (
-    <Stack gap="md">
+    <div>
       {questions.map((question) => (
-        <Paper key={question.id} withBorder p="md">
+        <section key={question.id} className={classes.section}>
           <QuestionView question={question} depth={0} />
-        </Paper>
+        </section>
       ))}
-    </Stack>
+    </div>
   );
 }
 
@@ -29,8 +31,8 @@ function QuestionView({ question, depth }: { question: QuestionNode; depth: numb
   switch (question.content) {
     case 'GROUP':
       return (
-        <Stack gap="md">
-          <Title order={order} size="h4">
+        <Stack gap="lg">
+          <Title order={order} size="h3">
             {question.labelEn}
           </Title>
           {question.children.map((child) => (
@@ -45,18 +47,21 @@ function QuestionView({ question, depth }: { question: QuestionNode; depth: numb
   }
 }
 
-/** A question outside tables: one input. */
+/** A question outside tables: one input, its status bar and its margin note. */
 function ScalarQuestion({ question }: { question: QuestionNode }) {
+  const { isLocked } = useAnswerForm();
   const state = useFormState();
   return (
-    <Stack gap={4}>
+    <Annotated
+      status={isLocked(question.id) ? 'waiting' : answerStatus(state, question.id)}
+      margin={<QuestionNotes questionId={question.id} />}
+    >
       <AnswerInput
         question={question}
         columnKey={SCALAR_COLUMN.key}
         label={labelOf(question)}
         {...cellState(state, question.id, SCALAR_COLUMN.key)}
       />
-      <QuestionNotes questionId={question.id} />
-    </Stack>
+    </Annotated>
   );
 }

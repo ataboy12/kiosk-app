@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  answerStatus,
   EMPTY_FORM,
   editedFrom,
   formReducer,
@@ -79,5 +80,24 @@ describe('formReducer', () => {
     const state = [edit('S1-6_11', 6), saved].reduce(formReducer, typed);
     expect(unsavedChanges(state)).toEqual([{ questionId: 'S1-6_11', columnKey: '', value: 6 }]);
     expect(unsavedChanges(formReducer(typed, saved))).toEqual([]);
+  });
+});
+
+describe('answerStatus', () => {
+  it('is computed while the DSN value is kept', () => {
+    expect(answerStatus(run(LOADED), 'S1-6_11')).toBe('computed');
+  });
+
+  it("is the user's once a computed value is changed, and computed again after a reset", () => {
+    const edited = run(LOADED, edit('S1-6_11', 4));
+    expect(answerStatus(edited, 'S1-6_11')).toBe('yours');
+    const reset: FormAction = { type: 'reset', questionId: 'S1-6_11', columnKey: '' };
+    expect(answerStatus(formReducer(edited, reset), 'S1-6_11')).toBe('computed');
+  });
+
+  it("is the user's for an answer the DSN doesn't give, and missing while it is empty", () => {
+    expect(answerStatus(run(LOADED), 'S1-6_17')).toBe('missing');
+    expect(answerStatus(run(LOADED, edit('S1-6_17', 'See note 4')), 'S1-6_17')).toBe('yours');
+    expect(answerStatus(run(LOADED, edit('S1-6_17', '')), 'S1-6_17')).toBe('missing');
   });
 });

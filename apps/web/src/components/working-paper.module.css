@@ -1,0 +1,159 @@
+/*
+ * The working-paper layout: one white sheet on a grey desk. Each answer sits in the main column
+ * with a status bar on its left; how it was computed is written in the margin on its right.
+ */
+
+.sheet {
+  background: var(--kiosk-sheet);
+  border: 1px solid var(--kiosk-rule);
+  max-width: 1040px;
+  margin: 32px auto 0;
+  padding: 40px 48px 0;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    margin-top: 0;
+    border-inline: 0;
+    padding: 24px 16px 0;
+  }
+}
+
+.narrowSheet {
+  composes: sheet;
+  max-width: 680px;
+  padding-bottom: 40px;
+}
+
+/* A top-level question. The rule above it is the only separator: no cards. */
+.section {
+  border-top: 1px solid var(--kiosk-rule);
+  padding-block: 28px;
+}
+
+.annotated {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  column-gap: 32px;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+}
+
+.main {
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 3px solid transparent;
+}
+
+/* The status bars, explained by the legend. "To complete" is dashed so it doesn't rely on colour. */
+.main[data-status='computed'],
+.rowHeader[data-status='computed'],
+.swatch[data-status='computed'] {
+  border-left-color: var(--kiosk-computed);
+}
+
+.main[data-status='yours'],
+.rowHeader[data-status='yours'],
+.swatch[data-status='yours'] {
+  border-left-color: var(--kiosk-edited);
+}
+
+.main[data-status='missing'],
+.rowHeader[data-status='missing'],
+.swatch[data-status='missing'] {
+  border-left-style: dashed;
+  border-left-color: var(--kiosk-rule-strong);
+}
+
+.main[data-status='waiting'],
+.rowHeader[data-status='waiting'],
+.swatch[data-status='waiting'] {
+  border-left-color: var(--kiosk-rule);
+}
+
+.margin {
+  border-left: 1px solid var(--kiosk-rule);
+  padding-left: 16px;
+  color: var(--kiosk-slate);
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.5;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    margin-left: 17px;
+  }
+}
+
+.marginLabel {
+  color: var(--kiosk-ink);
+  font-weight: 500;
+}
+
+.fields summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.fields summary:focus-visible {
+  outline: 2px solid var(--kiosk-ink);
+  outline-offset: 2px;
+}
+
+/* In a table the bar sits on the row header. */
+.rowHeader {
+  border-left: 3px solid transparent;
+}
+
+.legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  color: var(--kiosk-slate);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.swatch {
+  display: inline-block;
+  width: 0;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border-left: 3px solid transparent;
+}
+
+/* A status message: a coloured rule on the left, no filled box. */
+.notice {
+  border-left: 3px solid var(--kiosk-rule-strong);
+  padding: 4px 0 4px 14px;
+
+  &[data-tone='ready'] {
+    border-left-color: var(--kiosk-computed);
+  }
+
+  &[data-tone='warning'] {
+    border-left-color: var(--kiosk-edited);
+  }
+
+  &[data-tone='error'] {
+    border-left-color: var(--kiosk-error);
+  }
+}
+
+/* Save and export stay in view at the bottom of the sheet. */
+.saveBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--kiosk-sheet);
+  border-top: 1px solid var(--kiosk-rule);
+  margin-inline: -48px;
+  padding: 14px 48px;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    margin-inline: -16px;
+    padding: 12px 16px;
+  }
+}

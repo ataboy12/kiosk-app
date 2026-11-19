@@ -1,8 +1,9 @@
-import { Alert, Anchor, Container, Group, Stack, Text, Title } from '@mantine/core';
+import { Alert, Anchor, Group, Stack, Text, Title } from '@mantine/core';
 import { MAPPED_QUESTION_IDS } from '@kiosk/questionnaire';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { ImportWorkspace } from '~/components/import-workspace';
+import classes from '~/components/working-paper.module.css';
 import { EXPORT_ERROR_PARAM, exportErrorMessage } from '~/export-errors';
 import { QUESTIONNAIRE_TITLE } from '~/questionnaire-title';
 import { getImport, processImport } from '~/server/imports';
@@ -17,12 +18,16 @@ export default async function ImportPage({ params, searchParams }: PageProps<'/i
   if (!dsnImport) notFound();
 
   return (
-    <Container size="md" py="xl">
+    <main className={classes.sheet}>
       <Stack gap="lg">
         <Group justify="space-between" align="flex-end">
           <Stack gap={4}>
-            <Title order={1}>{QUESTIONNAIRE_TITLE}</Title>
-            <Text c="dimmed">From {dsnImport.fileName}</Text>
+            <Title order={1} size="h2">
+              {QUESTIONNAIRE_TITLE}
+            </Title>
+            <Text c="dimmed" size="sm">
+              Pre-filled from {dsnImport.fileName}
+            </Text>
           </Stack>
           {/* A plain link: a server component can't pass `Link` to Mantine's client components. */}
           <Anchor href="/">Upload another file</Anchor>
@@ -40,6 +45,6 @@ export default async function ImportPage({ params, searchParams }: PageProps<'/i
           prefill={processImport(id)}
         />
       </Stack>
-    </Container>
+    </main>
   );
 }

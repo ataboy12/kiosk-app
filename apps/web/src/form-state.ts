@@ -117,6 +117,21 @@ export function cellState(state: FormState, questionId: string, columnKey: strin
   };
 }
 
+/**
+ * Where a question's answer comes from, shown beside it: as computed from the DSN, changed or
+ * added by the user, or still empty.
+ */
+export type AnswerStatus = 'computed' | 'yours' | 'missing';
+
+export function answerStatus(state: FormState, questionId: string): AnswerStatus {
+  const row = state.values[questionId] ?? {};
+  const filled = Object.values(row).some((value) => value !== null && value !== '');
+  if (!filled) return 'missing';
+  const computed = state.computed[questionId] !== undefined;
+  const edited = Object.keys(row).some((columnKey) => editedFrom(state, questionId, columnKey));
+  return computed && !edited ? 'computed' : 'yours';
+}
+
 /** How the DSN answered this question (the same for all its columns), or `undefined`. */
 export function provenanceOf(state: FormState, questionId: string): Provenance | undefined {
   return Object.values(state.computed[questionId] ?? {})[0]?.provenance;

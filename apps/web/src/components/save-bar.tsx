@@ -1,11 +1,12 @@
 'use client';
 
-import { Button, Group, Paper, Text, VisuallyHidden } from '@mantine/core';
+import { Button, Group, Text, VisuallyHidden } from '@mantine/core';
 import { useEffect, useState, useTransition } from 'react';
 import { unsavedChanges } from '~/form-state';
 import { saveAnswers } from '~/server/save-answers';
 import type { SaveResult } from '~/server/store-answers';
 import { useAnswerForm, useFormState } from './answer-form-context';
+import classes from './working-paper.module.css';
 
 /** The request itself failed (network, server restart, new deploy): the values stay in the form. */
 const UNREACHABLE: SaveResult = {
@@ -20,7 +21,7 @@ interface SaveBarProps {
 }
 
 /**
- * Explicit save and Word export, kept in view at the bottom of the form. The user stays on the
+ * Explicit save and Word export, kept in view at the bottom of the sheet. The user stays on the
  * page. The export holds the saved answers, so it waits until every change is saved.
  */
 export function SaveBar({ importId, ready }: SaveBarProps) {
@@ -53,9 +54,9 @@ export function SaveBar({ importId, ready }: SaveBarProps) {
   }
 
   return (
-    <Paper withBorder shadow="sm" p="sm" pos="sticky" bottom={16} style={{ zIndex: 2 }}>
+    <div className={classes.saveBar}>
       <Group justify="space-between">
-        <Text size="sm" c={error ? 'red' : 'dimmed'}>
+        <Text size="sm" c={error ? 'red.8' : 'dimmed'}>
           {statusText({ saving, error, ready, changeCount: changes.length })}
         </Text>
         <VisuallyHidden aria-live="polite">{saving ? 'Saving…' : announcement}</VisuallyHidden>
@@ -72,11 +73,11 @@ export function SaveBar({ importId, ready }: SaveBarProps) {
             </Button>
           )}
           <Button onClick={save} loading={saving} disabled={!ready || !dirty}>
-            Save
+            Save changes
           </Button>
         </Group>
       </Group>
-    </Paper>
+    </div>
   );
 }
 
