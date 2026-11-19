@@ -42,6 +42,11 @@ pnpm build        # next build; needs no database
      `curl -s http://localhost:3100/imports/<id> | sed 's/<!-- -->//g'` must contain
      `Reading your DSN…` (the streamed fallback), `100 employees found` and
      `15 questions pre-filled`.
+   - Save through the `saveAnswers` action (its id is in
+     `apps/web/.next/dev/server/app/imports/[id]/page/server-reference-manifest.json`):
+     `curl -s -H "Next-Action: $ID" -H "Accept: text/x-component" -H "Origin: http://localhost:3100" -H "Content-Type: text/plain;charset=UTF-8" --data '["<id>",[{"questionId":"S1-6_11","columnKey":"","value":4}]]' http://localhost:3100/imports/<id>`
+     must return `{"ok":true}`, and the `answer` table must then hold S1-6_11 = 4 and S1-6_12
+     (turnover) = 4, both `MANUAL`. Sending `S1-6_12` itself must return `"ok":false`.
    - The dev log must have no `⨯` lines.
 5. Stop the server you started (`lsof -ti tcp:3100 | xargs kill`). Leave Postgres running.
 

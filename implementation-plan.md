@@ -87,8 +87,8 @@ The domain packages (`dsn`, `questionnaire`, `docx-export`) never import `db` or
    - Answers are **streamed** to the page. Processing is safe to repeat: if the import is already `READY`, the saved answers are read instead of recomputed.
    - Processing sits behind one function, so it can later move to a background job without changing the UI. A row lock makes concurrent requests (refresh, two tabs) wait for the first run instead of computing twice.
 3. **Answers arrive.** The locked fields unlock with their values, and a summary replaces the waiting banner (employees found, questions pre‑filled, warnings). Anything typed in the meantime is kept.
-4. **Edit.** Pre‑filled values can be edited (marked "edited", with a "reset to computed" action). Turnover recalculates when its inputs change.
-5. **Save and export.** Save is explicit and keeps the user on the page. Export is disabled until pre‑filling has finished.
+4. **Edit.** Pre‑filled values can be edited (marked "edited", with a "reset to computed" action). Turnover recalculates when its inputs change; it is read‑only, since editing its inputs is what changes it.
+5. **Save and export.** Save is explicit and keeps the user on the page, and warns before leaving with unsaved changes. It is enabled once the pre‑filled answers have arrived and sends only the changed cells; the server validates them against the questions and the import's columns, and recomputes the derived answers with the same definition. An answer set back to its computed value is `COMPUTED` again. Export is disabled until pre‑filling has finished.
 
 ## 8. UX principles
 
@@ -96,7 +96,7 @@ The domain packages (`dsn`, `questionnaire`, `docx-export`) never import `db` or
 - **Locked fields:** a waiting indicator inside the field, a tooltip explaining why, and table columns shown as placeholders until the data arrives. They use a read‑only state rather than `disabled`, so screen readers can still reach them, and the arrival of answers is announced.
 - **Warnings and errors in business language**, each with a next step ("Upload another file", "Retry"). User input is never lost.
 - **Failure handling:**
-  - Fatal parsing error: show the message and offer a new upload.
+  - Fatal parsing error: show the message and offer a new upload; the form is hidden, as there is nothing to answer.
   - A single question that can't be computed: unlock it empty, with an explanation.
   - Processing that runs too long: time out and offer a retry.
 

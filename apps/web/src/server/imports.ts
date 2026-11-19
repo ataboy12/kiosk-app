@@ -7,6 +7,7 @@ import {
   type PrefilledAnswer,
   type PrefillSummary,
 } from '~/prefill';
+import { ANSWER_FIELDS } from './store-answers';
 import { computeImport } from './compute-import';
 import { getQuestionTree } from './questions';
 import { settle } from './settle';
@@ -95,17 +96,7 @@ async function readPrefill(id: string): Promise<Prefill> {
   }
   if (dsnImport.status === 'PROCESSING') throw new Error(`Import ${id} is still processing.`);
 
-  const rows = await db
-    .select({
-      questionId: answers.questionId,
-      columnKey: answers.columnKey,
-      computedValue: answers.computedValue,
-      value: answers.value,
-      source: answers.source,
-      provenance: answers.provenance,
-    })
-    .from(answers)
-    .where(eq(answers.importId, id));
+  const rows = await db.select(ANSWER_FIELDS).from(answers).where(eq(answers.importId, id));
 
   return {
     status: 'READY',

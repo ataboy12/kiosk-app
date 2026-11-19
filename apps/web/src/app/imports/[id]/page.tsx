@@ -25,6 +25,7 @@ export default async function ImportPage({ params }: PageProps<'/imports/[id]'>)
         </Group>
         {/* Not awaited: the questions render now and the answers stream in when ready. */}
         <ImportWorkspace
+          importId={id}
           questions={questions}
           mappedQuestionIds={[...MAPPED_QUESTION_IDS]}
           prefill={processImport(id)}
