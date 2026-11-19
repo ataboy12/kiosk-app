@@ -1,0 +1,26 @@
+{
+  "name": "@kiosk/questionnaire",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Question tree and DSN-to-question mapping engine.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@kiosk/dsn": "workspace:*"
+  },
+  "devDependencies": {
+    "@kiosk/eslint-config": "workspace:*",
+    "@kiosk/typescript-config": "workspace:*",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

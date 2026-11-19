@@ -1,0 +1,24 @@
+{
+  "name": "@kiosk/dsn",
+  "version": "0.0.0",
+  "private": true,
+  "description": "DSN parser: turns a DSN file into typed blocks plus warnings. No dependencies.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@kiosk/eslint-config": "workspace:*",
+    "@kiosk/typescript-config": "workspace:*",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}
