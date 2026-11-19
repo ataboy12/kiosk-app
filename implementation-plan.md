@@ -9,7 +9,7 @@ Upload a DSN, parse it on the server, map its data to the S1‑6 workforce quest
 - **`dsn.txt` defines the v1 scope.** It has 1 company, 1 establishment and 100 employees, each with one contract and one pay period, no contract ends, and many invalid codes. Only sex and the payment dates are reliable.
 - **Extensibility:** larger and more complete DSNs (several establishments, several contracts per employee, contract ends and changes, big files) are not handled in v1. The code is structured so they can be added without a rewrite (see §3 and §10).
 - **`questions.csv` is irregular.** It uses `;` as separator, mixes casing in `content`, and separates enum options with `", "`. Table questions are 2‑D: the child questions are the rows, and the breakdown values (country, contract × gender, …) are the columns.
-- **Reporting period:** read from `S20.G00.05.005` when it falls within the payment dates, otherwise derived from the payment dates (the case in the sample, where it is 1946‑07‑20).
+- **Reporting period:** the declared month `S20.G00.05.005` when payment dates `50.001` fall in it, otherwise the whole months spanned by the payment dates (the case in the sample, where it is 1946‑07‑20, giving Nov–Dec 2025). Pay periods `.51` are not used: in the sample they run into January 2026.
 
 ## 3. Parsing
 
@@ -29,9 +29,9 @@ Upload a DSN, parse it on the server, map its data to the S1‑6 workforce quest
 | S1‑6_11 Leavers                    | `S21.G00.62` blocks with an end date in the period, excluding reason `099` (cancellation). 0 on the sample, with a note |
 | S1‑6_12 Turnover %                 | Leavers ÷ average headcount × 100, recalculated when either input is edited                                             |
 | S1‑6_05/06 By country              | Establishment country `11.015` (empty means France)                                                                     |
-| K_718/719 Contract × gender        | `40.007` grouped into permanent / temporary / non‑guaranteed hours / other, crossed with `30.005`                       |
-| S1‑6_09/10 By region               | Establishment postal code → région, otherwise "Unknown"                                                                 |
-| S1‑6_19/20 By category             | First digit of `40.004` (occupation category), `40.003` (status) as fallback                                            |
+| K_718/719 Contract × gender        | `40.007` grouped into permanent / temporary / non‑guaranteed hours (`07`) / other, crossed with `30.005`                |
+| S1‑6_09/10 By region               | Establishment postal code → région; "Outside France" when `11.015` is set (the sample's `IR`), otherwise "Unknown"      |
+| S1‑6_19/20 By category             | First digit of `40.004` (PCS‑ESE group 1–6), `40.003` (pension status: cadre / non‑cadre) as fallback                   |
 | S1‑6_14 / S1‑6_15                  | Pre‑filled with "Head‑count" / "At end of period", editable                                                             |
 | S1‑6_16 Context                    | Pre‑filled with generated text (company, period, data‑quality warnings)                                                 |
 | S1‑6_17                            | Manual only                                                                                                             |
@@ -39,6 +39,9 @@ Upload a DSN, parse it on the server, map its data to the S1‑6 workforce quest
 - Every computed answer stores its **provenance** (rubriques used, method), which the UI shows to the user.
 - Each question has its own resolver in a registry, so adding or changing a mapping touches one resolver only.
 - Employees are counted by unique identifier, and breakdown columns come from the values found in the data. Both cost nothing on the sample and keep the mapping correct for richer files.
+- Breakdowns are combinations of reusable dimensions (gender, contract type, country, région, category). Each dimension knows its rubriques and which values are unknown, which feeds both the table columns and the data‑quality notes.
+- Turnover is a derived answer: one definition, applied by the engine to the computed inputs and by the form to edited ones.
+- A resolver that fails produces a per‑question failure with a message; the other questions are still answered.
 
 ## 5. Stack
 
@@ -65,6 +68,15 @@ The domain packages (`dsn`, `questionnaire`, `docx-export`) never import `db` or
 - `DsnImport`: status (`PROCESSING` / `READY` / `FAILED`), company, period, warnings.
 - `Question`: seeded from the CSV.
 - `Answer`: `computedValue`, `value`, `source` (`COMPUTED` / `MANUAL`) and provenance, all tracked per table cell.
+
+**Design requirements (SOLID).** Every package must respect them; a review checks them:
+
+- **Single responsibility:** one module per concern (parsing, code lists, breakdowns, resolvers, engine). A function does one thing; sorting, validating and counting are not mixed.
+- **Open/closed:** adding a question, a breakdown, a block type or a code means adding an entry to a registry or a table, not editing the engine. Code never relies on the format of another module's keys or strings.
+- **Liskov substitution:** every resolver, dimension or field spec honours the same contract (inputs, return shape, failure through the dedicated error), so the engine treats them alike.
+- **Interface segregation:** packages export only what their consumers use; internal types and helpers stay private.
+- **Dependency inversion:** domain packages depend on plain data types, never on the database, the framework or the web app. The web app adapts its rows to those types.
+- Also: one definition per business rule (no logic duplicated between the engine and the form), no dead code or unreachable branches, no casts to silence the type checker.
 
 ## 7. User flow
 

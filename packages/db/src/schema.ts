@@ -78,7 +78,7 @@ export const questions = pgTable(
   (t) => [index().on(t.parentId)],
 );
 
-/** One value per question, or per table cell (`columnKey` is the breakdown key, "" outside tables). */
+/** One value per question, or per table cell (`columnKey` is the breakdown column key, "" when there is no breakdown). */
 export const answers = pgTable(
   'answer',
   {
